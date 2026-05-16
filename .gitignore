@@ -1,0 +1,22 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# React build files
+dist/
+build/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# ML model files
+*.pkl
+
+# VS Code settings
+.vscode/
+
+# Logs
+npm-debug.log*
