@@ -1,41 +1,42 @@
-const { PythonShell } = require("python-shell");
+const path = require("path");
+const { spawn } = require("child_process");
+const readline = require("readline");
 
-const runPrediction = (data) => {
+const python = spawn(
+  process.env.PYTHON_PATH || "python",
+  ["-u", path.join(__dirname, "..", "ml", "predict.py")],
+  { cwd: path.join(__dirname, "..") },
+);
 
-  return new Promise((resolve, reject) => {
+const output = readline.createInterface({ input: python.stdout });
+const pending = [];
 
-    let options = {
+output.on("line", (line) => {
+  const request = pending.shift();
+  if (!request) return;
 
-      mode: "text",
+  try {
+    const result = JSON.parse(line);
+    if (result.error) request.reject(new Error(result.error));
+    else request.resolve(result);
+  } catch (error) {
+    request.reject(error);
+  }
+});
 
-      pythonOptions: ["-u"],
+python.on("error", (error) => {
+  while (pending.length) pending.shift().reject(error);
+});
 
-      scriptPath: "./ml",
+python.on("exit", (code) => {
+  const error = new Error(`Python prediction process exited with code ${code}`);
+  while (pending.length) pending.shift().reject(error);
+});
 
-      args: [JSON.stringify(data)]
-    };
-
-    PythonShell.run(
-      "predict.py",
-      options
-    )
-
-    .then((results) => {
-
-      const result = JSON.parse(results[0]);
-
-      resolve(result);
-
-    })
-
-    .catch((err) => {
-
-      reject(err);
-
-    });
-
+const runPrediction = (data) =>
+  new Promise((resolve, reject) => {
+    pending.push({ resolve, reject });
+    python.stdin.write(`${JSON.stringify(data)}\n`);
   });
-
-};
 
 module.exports = runPrediction;

@@ -1,16 +1,18 @@
 const mongoose = require("mongoose");
 
 const predictionSchema = new mongoose.Schema({
-  time: String,
+  time: {
+    type: Date,
+    expires: "30d",
+  },
+
+  mine_id: String,
 
   input: Object,
 
   prediction: String,
 
-  confidence: Number
+  confidence: Number,
 });
 
-module.exports = mongoose.model(
-  "Prediction",
-  predictionSchema
-);
+module.exports = mongoose.model("Prediction", predictionSchema);

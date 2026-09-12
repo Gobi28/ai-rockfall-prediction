@@ -5,10 +5,8 @@ const router = express.Router();
 const Prediction = require("../models/Prediction");
 
 router.get("/", async (req, res) => {
-
-  const data = await Prediction.find().sort({
-    _id: -1
-  });
+  const filter = req.query.mine ? { mine_id: req.query.mine } : {};
+  const data = await Prediction.find(filter).sort({ _id: -1 }).limit(100);
 
   res.json(data);
 });

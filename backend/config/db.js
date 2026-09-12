@@ -1,20 +1,17 @@
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
+  const mongoUri = process.env.MONGO_URI;
 
-  try {
-
-    await mongoose.connect(
-      "mongodb://127.0.0.1:27017/ai_mine_prediction"
-    );
-
-    console.log("MongoDB Connected");
-
-  } catch (error) {
-
-    console.log(error);
-
+  if (!mongoUri) {
+    throw new Error("MONGO_URI is not configured");
   }
+
+  await mongoose.connect(mongoUri, {
+    serverSelectionTimeoutMS: 10000,
+  });
+
+  console.log("MongoDB Connected");
 };
 
 module.exports = connectDB;

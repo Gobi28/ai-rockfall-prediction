@@ -11,10 +11,18 @@ import History from "./pages/History";
 import "./App.css";
 
 function App() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem("mine-dashboard-theme");
+    return savedTheme ? savedTheme === "dark" : true;
+  });
+
+  const changeTheme = (isDark) => {
+    setDarkMode(isDark);
+    localStorage.setItem("mine-dashboard-theme", isDark ? "dark" : "light");
+  };
 
   return (
-    <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
+    <Layout darkMode={darkMode} setDarkMode={changeTheme}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/live" element={<LivePrediction />} />
